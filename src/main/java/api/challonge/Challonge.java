@@ -40,6 +40,16 @@ public class Challonge {
         participants = new ArrayList<>();
     }
 
+
+    public String getNameFromId(String id){
+        for (Map.Entry<String, String> entry : partId.entrySet()) {
+            if (entry.getValue().equals(id)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     public String post() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments.json")
                 .header("accept", "application/json")
@@ -76,6 +86,13 @@ public class Challonge {
         return response.getStatus() == 200;
     }
 
+
+    public void test(){
+        for (String s : partId.keySet()) {
+            System.out.println("Name: " + s + "ID: " + partId.get(s));
+        }
+    }
+
     /*
     returns 404 not found, unsure why
      */
@@ -96,7 +113,6 @@ public class Challonge {
                 Object key = keys.next();
                 JSONObject value = object.getJSONObject((String) key);
                 String id = value.getString("id");
-                System.out.println(id);
                 this.matchIds.put(m, id);
             }
         }
