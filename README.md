@@ -28,7 +28,7 @@ Depenency
 ## Usage
 
 # Constructor
-```
+```java
 Challonge challonge = new Challonge("api-key", "username", "url", "Name", "description", GameType.DOUBLE);
 ```
 # Methods
