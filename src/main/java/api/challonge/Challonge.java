@@ -41,7 +41,7 @@ public class Challonge {
     }
 
 
-    public String getNameFromId(String id){
+    public String getNameFromId(String id) {
         for (Map.Entry<String, String> entry : partId.entrySet()) {
             if (entry.getValue().equals(id)) {
                 return entry.getKey();
@@ -87,7 +87,7 @@ public class Challonge {
     }
 
 
-    public void test(){
+    public void test() {
         for (String s : partId.keySet()) {
             System.out.println("Name: " + s + "ID: " + partId.get(s));
         }
@@ -191,4 +191,24 @@ public class Challonge {
         };
     }
 
+    public String getRound(int matchId) {
+        JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
+        return (String) match.get("round");
+    }
+
+    public Set<JSONObject> getMatches(String participantName) {
+        HashSet<JSONObject> matches = new HashSet<>();
+
+        JSONArray array;
+        String[] participants;
+        for (int i : this.matchIds.keySet()) {
+            array = getMatch(i);
+            participants = getMatchParticipants(i);
+            if(Arrays.stream(participants).anyMatch(participantName::equalsIgnoreCase)){
+                matches.add(array.getJSONObject(0).getJSONObject("match"));
+            }
+        }
+
+        return matches;
+    }
 }
