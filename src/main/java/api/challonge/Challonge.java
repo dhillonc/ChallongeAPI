@@ -41,6 +41,11 @@ public class Challonge {
     }
 
 
+    /**
+     *
+     * @param id id of the user you want to get
+     * @return String name of the user based of the ID
+     */
     public String getNameFromId(String id){
         for (Map.Entry<String, String> entry : partId.entrySet()) {
             if (entry.getValue().equals(id)) {
@@ -50,6 +55,10 @@ public class Challonge {
         return null;
     }
 
+    /**
+     * initial method for posting the match
+     * @return
+     */
     public String post() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments.json")
                 .header("accept", "application/json")
@@ -63,6 +72,10 @@ public class Challonge {
         return response.getBody().toPrettyString();
     }
 
+    /**
+     *
+     * @return if successful
+     */
     public boolean addParticpants() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/participants/bulk_add.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -87,15 +100,10 @@ public class Challonge {
     }
 
 
-    public void test(){
-        for (String s : partId.keySet()) {
-            System.out.println("Name: " + s + "ID: " + partId.get(s));
-        }
-    }
-
-    /*
-    returns 404 not found, unsure why
-     */
+    /**
+    *      Adds matches to HashMap based of their match ID starting at 1
+     * @return if successful
+    * */
     public boolean indexMatches() {
         HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -115,14 +123,23 @@ public class Challonge {
                 String id = value.getString("id");
                 this.matchIds.put(m, id);
             }
+            m++;
         }
         return response.getStatus() == 200;
     }
 
+    /**
+     * gets the URL of the match
+     * @return match URL
+     */
     public String getUrl() {
         return "https://challonge.com/" + url;
     }
 
+    /**
+     * Sets the tournament as started
+     * @return if successful
+     */
     public boolean start() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/start.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -135,6 +152,10 @@ public class Challonge {
         }
     }
 
+    /**
+     * ends the tournament and archives the match post
+     * @return
+     */
     public boolean end() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/finalize.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -147,6 +168,10 @@ public class Challonge {
         }
     }
 
+    /**
+     * Randomizes the seeds
+     * @return if successful
+     */
     public boolean randomize() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/participants/randomize.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -159,6 +184,11 @@ public class Challonge {
         }
     }
 
+    /**
+     *
+     * @param id match id
+     * @return the jsonarray of a match
+     */
     public JSONArray getMatch(int id) {
         HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
@@ -169,7 +199,12 @@ public class Challonge {
         return response.getBody().getArray();
     }
 
-
+    /**
+     *
+     * @param matchId match id
+     * @param name winner
+     * @return if successful
+     */
     public boolean updateMatch(int matchId, String name) {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
@@ -182,6 +217,11 @@ public class Challonge {
         return false;
     }
 
+    /**
+     *
+     * @param matchId
+     * @return array of particpants in the match
+     */
     public String[] getMatchParticipants(int matchId) {
         JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
 
