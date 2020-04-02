@@ -12,9 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
@@ -58,12 +56,20 @@ public class Challonge {
                 .field("participants[][name]", participants)
                 .asJson();
 
-        System.out.println(response.getBody().toPrettyString());
-        if (response.getStatus() == 200) {
-            return true;
-        } else {
-            return false;
+        JSONArray jsonObject = response.getBody().getArray();
+        for (int i = 0; i < jsonObject.length(); i++) {
+
+            JSONObject object = jsonObject.getJSONObject(i);
+            Iterator keys = object.keys();
+            while (keys.hasNext()) {
+                Object key = keys.next();
+                JSONObject value = object.getJSONObject((String) key);
+                String id = value.getString("id");
+                String name = value.getString("name");
+                partId.put(name, id);
+            }
         }
+        return response.getStatus() == 200;
     }
 
     public String getUrl(){
@@ -105,27 +111,4 @@ public class Challonge {
         }
     }
 
-    public String getMatch(String id) {
-        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
-                replace("{tournament}", url)
-                .replace("{match_id}", id))
-                .header("accept", "application/json")
-                .field("api_key", api)
-                .asJson();
-        return response.getBody().toPrettyString();
-    }
-
-
-
-    public boolean updateMatch(String matchId, String name){
-        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
-                replace("{tournament}", url)
-                .replace("{match_id}", matchId))
-                .header("accept", "application/json")
-                .field("api_key", api)
-                .field("match[winner_id]", partId.get(name))
-                .asJson();
-
-        return false;
-    }
 }
