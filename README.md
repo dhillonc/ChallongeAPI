@@ -43,6 +43,7 @@ Will add the participant "name" to the list of participants
 This will add all the participants to the bracket online
 
 `challonge.randomize();` Will randomize the seeds
+`challonge.indexMatches();` *_Important_* make sure you do this itll populate the matches
 
 `challonge.start();` Will set the tournament as started
 
@@ -50,6 +51,8 @@ This will add all the participants to the bracket online
 `challonge.updateMatch(4, "test15")` Will update match 4 with the winner as test15
 
 `challonge.getMatch(4);` Will return a jsonresponse of the match infomation
+
+`
 
 `challonge.getUrl();` Returns the url for the match
 
