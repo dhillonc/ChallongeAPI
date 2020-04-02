@@ -143,14 +143,14 @@ public class Challonge {
         }
     }
 
-    public String getMatch(int id) {
+    public JSONArray getMatch(int id) {
         HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
                 .replace("{match_id}", matchIds.get(id)))
                 .header("accept", "application/json")
                 .queryString("api_key", api)
                 .asJson();
-        return response.getBody().toPrettyString();
+        return response.getBody().getArray();
     }
 
 
@@ -167,23 +167,12 @@ public class Challonge {
     }
 
     public String[] getMatchParticipants(int matchId) {
-//        HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json"
-//                .replace("{tournament}", url)
-//                .replace("{match_id}", matchIds.get(matchId)))
-//                .header("accept", "application/json")
-//                .queryString("api_key", api)
-//                .asJson();
-//
-//        JSONObject object = response.getBody().getArray().getJSONObject(0);
-
-        String jsonString = getMatch(matchId);
-        JSONObject object = new Gson().fromJson(jsonString, JSONObject.class); //This is what's causing problems... im doing something wrong
+        JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
 
         return new String[]{
-                partId.get(object.getString("player1_id")),
-                partId.get(object.getString("player2_id"))
+                partId.get((String) match.get("player1_id")),
+                partId.get((String) match.get("player2_id"))
         };
-
     }
 
 }
