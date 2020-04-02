@@ -25,6 +25,7 @@ public class Challonge {
     private HttpResponse<JsonNode> response;
 
     private HashMap<String, String> partId;
+    private HashMap<Integer, String> matchIds;
 
     public Challonge(String api, String username, String url, String name, String description, GameType gameType) {
         this.api = api;
@@ -34,6 +35,7 @@ public class Challonge {
         this.description = description;
         this.gameType = gameType;
         partId = new HashMap<>();
+        matchIds = new HashMap<>();
         participants = new ArrayList<>();
     }
 
@@ -44,6 +46,7 @@ public class Challonge {
                 .field("tournament[name]", name)
                 .field("tournament[url]", url)
                 .field("tournament[tournament_type]", gameType.getName())
+                .field("tournament[description]", description)
                 .asJson();
         this.response = response;
         return response.getBody().toPrettyString();
@@ -69,6 +72,31 @@ public class Challonge {
                 partId.put(name, id);
             }
         }
+        return response.getStatus() == 200;
+    }
+    /*
+    returns 404 not found, unsure why
+     */
+    public boolean indexMatches(){
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .asJson();
+
+        System.out.println(response.getBody().toPrettyString());
+     /*   int m = 1;
+        JSONArray jsonObject = response.getBody().getArray();
+        for (int i = 0; i < jsonObject.length(); i++) {
+
+            JSONObject object = jsonObject.getJSONObject(i);
+            Iterator keys = object.keys();
+            while (keys.hasNext()) {
+                Object key = keys.next();
+                JSONObject value = object.getJSONObject((String) key);
+                String id = value.getString("id");
+                System.out.println(id);
+            }
+        }*/
         return response.getStatus() == 200;
     }
 
@@ -109,6 +137,30 @@ public class Challonge {
         } else {
             return false;
         }
+    }
+
+    public String getMatch(int id) {
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(id)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .asJson();
+        return response.getBody().toPrettyString();
+    }
+
+
+
+    public boolean updateMatch(int matchId, String name){
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .field("match[winner_id]", partId.get(name))
+                .asJson();
+
+        return false;
     }
 
 }
