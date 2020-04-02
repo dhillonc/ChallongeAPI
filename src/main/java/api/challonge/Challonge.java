@@ -28,8 +28,9 @@ public class Challonge {
         this.description = description;
         participants = new ArrayList<>();
     }
-    public String post(){
-        HttpResponse<JsonNode> response  = Unirest.post("https://" +username + ":" + api +"@api.challonge.com/v1/tournaments.json")
+
+    public String post() {
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments.json")
                 .header("accept", "application/json")
                 .field("api_key", api)
                 .field("tournament[name]", name)
@@ -39,5 +40,17 @@ public class Challonge {
         return response.getBody().toPrettyString();
     }
 
+    public boolean addParticpants() {
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/participants/bulk_add.json".replace("{tournament}", url))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .field("participants[][name]", participants)
+                .asJson();
+        if (response.getStatus() == 200) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
