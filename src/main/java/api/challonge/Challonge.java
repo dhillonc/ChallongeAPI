@@ -1,5 +1,6 @@
 package api.challonge;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.JsonAdapter;
@@ -74,17 +75,18 @@ public class Challonge {
         }
         return response.getStatus() == 200;
     }
+
     /*
     returns 404 not found, unsure why
      */
-    public boolean indexMatches(){
-        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
+    public boolean indexMatches() {
+        HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches.json".replace("{tournament}", url))
                 .header("accept", "application/json")
-                .field("api_key", api)
+                .queryString("api_key", api)
                 .asJson();
 
         System.out.println(response.getBody().toPrettyString());
-     /*   int m = 1;
+        int m = 1;
         JSONArray jsonObject = response.getBody().getArray();
         for (int i = 0; i < jsonObject.length(); i++) {
 
@@ -95,13 +97,14 @@ public class Challonge {
                 JSONObject value = object.getJSONObject((String) key);
                 String id = value.getString("id");
                 System.out.println(id);
+                this.matchIds.put(m, id);
             }
-        }*/
+        }
         return response.getStatus() == 200;
     }
 
-    public String getUrl(){
-        return "https://challonge.com/" +url;
+    public String getUrl() {
+        return "https://challonge.com/" + url;
     }
 
     public boolean start() {
@@ -115,6 +118,7 @@ public class Challonge {
             return false;
         }
     }
+
     public boolean end() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/finalize.json".replace("{tournament}", url))
                 .header("accept", "application/json")
@@ -127,7 +131,7 @@ public class Challonge {
         }
     }
 
-    public boolean randomize(){
+    public boolean randomize() {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/participants/randomize.json".replace("{tournament}", url))
                 .header("accept", "application/json")
                 .field("api_key", api)
@@ -140,18 +144,17 @@ public class Challonge {
     }
 
     public String getMatch(int id) {
-        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+        HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
                 .replace("{match_id}", matchIds.get(id)))
                 .header("accept", "application/json")
-                .field("api_key", api)
+                .queryString("api_key", api)
                 .asJson();
         return response.getBody().toPrettyString();
     }
 
 
-
-    public boolean updateMatch(int matchId, String name){
+    public boolean updateMatch(int matchId, String name) {
         HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
                 .replace("{match_id}", matchIds.get(matchId)))
@@ -161,6 +164,26 @@ public class Challonge {
                 .asJson();
 
         return false;
+    }
+
+    public String[] getMatchParticipants(int matchId) {
+//        HttpResponse<JsonNode> response = Unirest.get("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json"
+//                .replace("{tournament}", url)
+//                .replace("{match_id}", matchIds.get(matchId)))
+//                .header("accept", "application/json")
+//                .queryString("api_key", api)
+//                .asJson();
+//
+//        JSONObject object = response.getBody().getArray().getJSONObject(0);
+
+        String jsonString = getMatch(matchId);
+        JSONObject object = new Gson().fromJson(jsonString, JSONObject.class); //This is what's causing problems... im doing something wrong
+
+        return new String[]{
+                partId.get(object.getString("player1_id")),
+                partId.get(object.getString("player2_id"))
+        };
+
     }
 
 }
