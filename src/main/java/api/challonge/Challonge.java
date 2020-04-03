@@ -205,16 +205,53 @@ public class Challonge {
      * @return if successful
      */
     public boolean updateMatch(int matchId, String name) {
-        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+        HttpResponse<JsonNode> response = Unirest.put("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
                 replace("{tournament}", url)
                 .replace("{match_id}", matchIds.get(matchId)))
                 .header("accept", "application/json")
                 .field("api_key", api)
+                .field("match[scores_csv]", "1-0")
                 .field("match[winner_id]", String.valueOf(partId.get(name)))
                 .asJson();
 
         return response.getStatus() == 200;
     }
+    public boolean updateMatch(int matchId, int winnerId) {
+        HttpResponse<JsonNode> response = Unirest.put("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .field("match[scores_csv]", "1-0")
+                .field("match[winner_id]", String.valueOf(winnerId))
+                .asJson();
+
+        return response.getStatus() == 200;
+    }
+
+
+    public boolean markAsUnderway(int matchId){
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}/mark_as_underway.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .asJson();
+
+        return response.getStatus() == 200;
+    }
+    public boolean unMarkAsUnderway(int matchId){
+        HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments/{tournament}/matches/{match_id}/unmark_as_underway.json".
+                replace("{tournament}", url)
+                .replace("{match_id}", matchIds.get(matchId)))
+                .header("accept", "application/json")
+                .field("api_key", api)
+                .asJson();
+
+        return response.getStatus() == 200;
+    }
+
+
 
     /**
      *
