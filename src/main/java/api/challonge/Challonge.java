@@ -231,4 +231,25 @@ public class Challonge {
         };
     }
 
+    public String getRound(int matchId) {
+        JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
+        return (String) match.get("round");
+    }
+
+    public ArrayList<JSONObject> getMatches(String participantName) {
+        ArrayList<JSONObject> matches = new ArrayList<>();
+
+        JSONArray array;
+        String[] participants;
+        for (int i : this.matchIds.keySet()) {
+            array = getMatch(i);
+            participants = getMatchParticipants(i);
+            if(Arrays.stream(participants).anyMatch(participantName::equalsIgnoreCase)){
+                matches.add(array.getJSONObject(0).getJSONObject("match"));
+            }
+        }
+
+        return matches;
+    }
+
 }
