@@ -25,7 +25,7 @@ public class Challonge {
     private GameType gameType;
     private HttpResponse<JsonNode> response;
 
-    private HashMap<String, String> partId;
+    private HashMap<String, Integer> partId;
     private HashMap<Integer, String> matchIds;
 
     public Challonge(String api, String username, String url, String name, String description, GameType gameType) {
@@ -46,8 +46,8 @@ public class Challonge {
      * @param id id of the user you want to get
      * @return String name of the user based of the ID
      */
-    public String getNameFromId(String id){
-        for (Map.Entry<String, String> entry : partId.entrySet()) {
+    public String getNameFromId(Integer id){
+        for (Map.Entry<String, Integer> entry : partId.entrySet()) {
             if (entry.getValue().equals(id)) {
                 return entry.getKey();
             }
@@ -91,7 +91,7 @@ public class Challonge {
             while (keys.hasNext()) {
                 Object key = keys.next();
                 JSONObject value = object.getJSONObject((String) key);
-                String id = value.getString("id");
+                int id = value.getInt("id");
                 String name = value.getString("name");
                 partId.put(name, id);
             }
@@ -110,7 +110,6 @@ public class Challonge {
                 .queryString("api_key", api)
                 .asJson();
 
-        System.out.println(response.getBody().toPrettyString());
         int m = 1;
         JSONArray jsonObject = response.getBody().getArray();
         for (int i = 0; i < jsonObject.length(); i++) {
@@ -211,10 +210,10 @@ public class Challonge {
                 .replace("{match_id}", matchIds.get(matchId)))
                 .header("accept", "application/json")
                 .field("api_key", api)
-                .field("match[winner_id]", partId.get(name))
+                .field("match[winner_id]", String.valueOf(partId.get(name)))
                 .asJson();
 
-        return false;
+        return response.getStatus() == 200;
     }
 
     /**
@@ -222,12 +221,12 @@ public class Challonge {
      * @param matchId
      * @return array of particpants in the match
      */
-    public String[] getMatchParticipants(int matchId) {
+    public Integer[] getMatchParticipants(int matchId) {
         JSONObject match = getMatch(matchId).getJSONObject(0).getJSONObject("match");
 
-        return new String[]{
-                partId.get((String) match.get("player1_id")),
-                partId.get((String) match.get("player2_id"))
+        return new Integer[]{
+                (match.getInt("player1_id")),
+                match.getInt("player2_id")
         };
     }
 
@@ -236,7 +235,7 @@ public class Challonge {
         return (String) match.get("round");
     }
 
-    public ArrayList<JSONObject> getMatches(String participantName) {
+  /* public ArrayList<JSONObject> getMatches(String participantName) {
         ArrayList<JSONObject> matches = new ArrayList<>();
 
         JSONArray array;
@@ -251,5 +250,5 @@ public class Challonge {
 
         return matches;
     }
-
+*/
 }

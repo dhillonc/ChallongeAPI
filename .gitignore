@@ -1,3 +1,6 @@
 
 target/classes/api/challonge/Challonge.class
 *.class
+src/test/java/Main.java
+*.class
+/target/
