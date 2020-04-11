@@ -259,6 +259,28 @@ public class Challonge {
         });
     }
 
+    public CompletableFuture<HashSet<JSONObject>> getMatchesByRound(int round){
+        return supplyAsync(() -> {
+            HashSet<JSONObject> matches = new HashSet<>();
+            for (int id : this.matchIds.keySet()){
+
+                try {
+                    JSONObject obj = getMatch(id).get().getJSONObject(0).getJSONObject("match");
+                    if(obj.getInt("round") == round){
+                        matches.add(obj);
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+
+            return matches;
+        });
+
+
+    }
+
     public CompletableFuture<Integer> getRounds() {
         return supplyAsync(() -> {
             List<Map.Entry<Integer, String>> entryList =
