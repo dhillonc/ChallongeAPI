@@ -52,6 +52,16 @@ public class Challonge {
         return null;
     }
 
+    public Integer getMatchIdFromChallongeId(String id){
+        for (Map.Entry<Integer, String> entry : matchIds.entrySet()){
+            if(entry.getValue().equals(id)){
+                return entry.getKey();
+            }
+        }
+
+        return -1;
+    }
+
     public CompletableFuture<Boolean> post() {
         return supplyAsync(() -> {
             HttpResponse<JsonNode> response = Unirest.post("https://" + username + ":" + api + "@api.challonge.com/v1/tournaments.json")
