@@ -1,5 +1,6 @@
 package api.challonge;
 
+
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
@@ -24,8 +25,8 @@ public class Challonge {
     private GameType gameType;
     private HttpResponse<JsonNode> response;
 
-    public static HashMap<String, Integer> partId = new HashMap<>();
-    public static HashMap<Integer, String> matchIds = new HashMap<>();
+    public HashMap<String, Integer> partId = new HashMap<>();
+    public HashMap<Integer, String> matchIds = new LinkedHashMap<>();
 
     public Challonge(String api, String username, String url, String name, String description, GameType gameType) {
         this.api = api;
@@ -258,11 +259,28 @@ public class Challonge {
         });
     }
 
-    public static HashMap<String, Integer> getPartId() {
+    public CompletableFuture<Integer> getRounds() {
+        return supplyAsync(() -> {
+            List<Map.Entry<Integer, String>> entryList =
+                    new ArrayList<>(matchIds.entrySet());
+            Map.Entry<Integer, String> first =
+                    entryList.get(0);
+
+            try {
+                return getMatch(first.getKey()).get().getJSONObject(0).getJSONObject("match").getInt("round");
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return -1;
+            }
+
+        });
+    }
+
+    public HashMap<String, Integer> getPartId() {
         return partId;
     }
 
-    public static HashMap<Integer, String> getMatchIds() {
+    public HashMap<Integer, String> getMatchIds() {
         return matchIds;
     }
 
